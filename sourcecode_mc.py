@@ -16,8 +16,8 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 def doubleintegral():
     func = widgets.Dropdown(\
-        options=['Ex_1','Ex_2','Ex_3'],\
-        value='Ex_2',\
+        options=['Ex_1'],\
+        value='Ex_1',\
         description='Select Example')
 
     inner = widgets.RadioButtons(\
@@ -37,7 +37,7 @@ def doubleintegral():
         disabled=False)
 
     view_hor = widgets.BoundedIntText(\
-        value=120,\
+        value=210,\
         min=0,\
         max=360,\
         step=10,\
@@ -67,21 +67,8 @@ def intcalc_func(func,opt,x,y):
     if opt == 'mesh_x' or opt == 'mesh_y':
         nxy = 40
         xmesh = np.empty([nxy,nxy])
-        ymesh = np.empty([nxy,nxy])
+        ymesh = np.empty([nxy,nxy])      
     if func == 'Ex_1':
-        if opt == 'surf':
-            surf = x*x*y
-        if opt == 'mesh_x':
-            for i in range(nxy):
-                ymesh[i][:] = 3.+i*1./(nxy*1.-1.)
-                for j in range(nxy):
-                    xmesh[i][j] = j*ymesh[i][0]/(nxy*1.-1.)
-        if opt == 'mesh_y':
-            for i in range(nxy):
-                xmesh[i][:] = 0.+i*2./(nxy*1.-1.)
-                for j in range(nxy):
-                    ymesh[i][j] = j*2.*xmesh[i][0]/(nxy*1.-1.)         
-    elif func == 'Ex_2':
         if opt == 'surf':
             surf = y
         if opt == 'mesh_x':
@@ -93,14 +80,7 @@ def intcalc_func(func,opt,x,y):
             for i in range(nxy):
                 xmesh[i][:] = 0.+i*2./(nxy*1.-1.)
                 for j in range(nxy):
-                    ymesh[i][j] = j*2.*xmesh[i][0]/(nxy*1.-1.)
-    elif func == 'Ex_3':
-        if opt == 'surf':
-            surf = np.exp(x*x*x)
-        elif opt == 'mesh':
-            xmesh = np.linspace(0.,1.,nxy)
-            ymesh = np.linspace(0.,4.,nxy)
-    
+                    ymesh[i][j] = j*2.*xmesh[i][0]/(nxy*1.-1.)    
     # return appropriate output
     if opt == 'surf':
         return surf
@@ -881,208 +861,3 @@ def spacecurve_run(func,ts,te,dt,\
             if view_area:
                 ax2.fill_between(arcl, 0, sp_s, alpha=0.8, facecolor='white', edgecolor='magenta', hatch='\\', label=r'$\int{|v(s)|\,ds}$')
         ax2.legend()
-
-
-
-def mc3_example_3_1(option):
-	nxy = 101
-	x = np.linspace(0.,2.,nxy)
-	y = 2.*x
-	X,Y = np.meshgrid(x, y)
-	Z = mc3_example_3_1_func(X, Y)
-
-	verts = []
-	verts.append([x[-1],y[0],0.])
-	for i in range(nxy):
-		verts.append([x[i],y[i],0.])
-	verts.append([x[-1],y[0],0.])
-
-	if option != 'default':
-		verts1 = []
-		verts2 = []
-		verts3 = []
-		
-		if option == 'x':
-			tmp = np.int(nxy/2)
-			verts1.append([x[tmp],y[0],0.])
-			for i in range(tmp):
-				verts1.append([x[tmp],y[i],mc3_example_3_1_func(x[tmp],y[i])])
-			verts1.append([x[tmp],y[tmp],0.])
-
-			tmp = np.int(nxy/4)
-			verts2.append([x[tmp],y[0],0.])
-			for i in range(tmp):
-				verts2.append([x[tmp],y[i],mc3_example_3_1_func(x[tmp],y[i])])
-			verts2.append([x[tmp],y[tmp],0.])
-
-			tmp = np.int(nxy/1.2)
-			verts3.append([x[tmp],y[0],0.])
-			for i in range(tmp):
-				verts3.append([x[tmp],y[i],mc3_example_3_1_func(x[tmp],y[i])])
-			verts3.append([x[tmp],y[tmp],0.])	
-
-		if option == 'y':
-			tmp = np.int(nxy/2)
-			verts1.append([x[tmp],y[tmp],0.])
-			for i in range(nxy-tmp):
-				verts1.append([x[tmp+i],y[tmp],mc3_example_3_1_func(x[tmp+i],y[tmp])])
-			verts1.append([x[-1],y[tmp],0.])
-
-			tmp = np.int(nxy/4)
-			verts2.append([x[tmp],y[tmp],0.])
-			for i in range(nxy-tmp):
-				verts2.append([x[tmp+i],y[tmp],mc3_example_3_1_func(x[tmp+i],y[tmp])])
-			verts2.append([x[-1],y[tmp],0.])
-
-			tmp = np.int(nxy/1.2)
-			verts3.append([x[tmp],y[tmp],0.])
-			for i in range(nxy-tmp):
-				verts3.append([x[tmp+i],y[tmp],mc3_example_3_1_func(x[tmp+i],y[tmp])])
-			verts3.append([x[-1],y[tmp],0.])
-		
-	fig = plt.figure(figsize=(16, 8))
-	if option == 'default':
-		ax1 = fig.add_subplot(121, projection='3d')
-		ax1.set_xlabel('x')
-		ax1.set_ylabel('y')
-		ax1.set_zlabel('f(x,y)')
-		ax1.set_zlim([0,4])
-		ax1.set_title('Surface')
-		ax1.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.plasma, linewidth=0, antialiased=False)
-		ax1.view_init(30, 325)
-		ax2 = fig.add_subplot(122)
-		ax2.set_xlabel('x')
-		ax2.set_ylabel('y')
-		ax2.set_title('Integration region')
-		ax2.plot([x[0],x[-1]],[y[0],y[0]], 'k--o')
-		ax2.plot([x[-1],x[-1]],[y[0],y[-1]], 'k--o')
-		ax2.plot([x[-1],x[0]],[y[-1],y[0]], 'k--o')
-		r = Poly3DCollection([verts], linewidth=1, alpha=0.5)
-		r.set_facecolor((0.2, 0.2, 0.2, 0.5))
-		ax1.add_collection3d(r)
-	else:
-		ax1 = fig.add_subplot(111, projection='3d')
-		ax1.set_xlabel('x')
-		ax1.set_ylabel('y')
-		ax1.set_zlabel('f(x,y)')
-		ax1.set_zlim([0,4])
-		#ax1.plot_wireframe(X, Y, 0*Z, rstride=nxy, cstride=nxy, color='k', linewidth=1.0, antialiased=True)
-		ax1.plot_wireframe(X, Y, Z, rstride=1, cstride=1, color='black', linewidth=0.4)
-		face1 = Poly3DCollection([verts1], linewidth=1, alpha=0.5)
-		face2 = Poly3DCollection([verts2], linewidth=1, alpha=0.5)
-		face3 = Poly3DCollection([verts3], linewidth=1, alpha=0.5)
-		face1.set_facecolor((0, 0, 1, 0.5))
-		face2.set_facecolor((0, 0, 1, 0.5))
-		face3.set_facecolor((0, 0, 1, 0.5))
-		ax1.add_collection3d(face1)
-		ax1.add_collection3d(face2)
-		ax1.add_collection3d(face3)
-		ax1.view_init(30, 315)
-		r = Poly3DCollection([verts], linewidth=1, alpha=0.5)
-		r.set_facecolor((0.2, 0.2, 0.2, 0.5))
-		ax1.add_collection3d(r)
-
-
-
-def mc3_example_3_2(option):
-	nxy = 101
-	y = np.linspace(0.,4.,nxy)
-	x = np.sqrt(y)
-	X,Y = np.meshgrid(x, y)
-	Z = mc3_example_3_2_func(X, Y)
-
-	intreg_x = []
-	intreg_y = []
-	for i in range(nxy):
-		intreg_x.append(x[i])
-		intreg_y.append(y[i])
-	intreg_x.append(x[-1])
-	intreg_y.append(y[0])
-	intreg_x.append(x[0])
-	intreg_y.append(y[0])
-
-	if option != 'default':
-		verts1 = []
-		verts2 = []
-		verts3 = []
-		
-		if option == 'x':
-			tmp = np.int(nxy/2)
-			verts1.append([x[tmp],y[0],0.])
-			for i in range(tmp):
-				verts1.append([x[tmp],y[i],mc3_example_3_2_func(x[tmp],y[i])])
-			verts1.append([x[tmp],y[tmp],0.])
-
-			tmp = np.int(nxy/4)
-			verts2.append([x[tmp],y[0],0.])
-			for i in range(tmp):
-				verts2.append([x[tmp],y[i],mc3_example_3_2_func(x[tmp],y[i])])
-			verts2.append([x[tmp],y[tmp],0.])
-
-			tmp = np.int(nxy/1.2)
-			verts3.append([x[tmp],y[0],0.])
-			for i in range(tmp):
-				verts3.append([x[tmp],y[i],mc3_example_3_2_func(x[tmp],y[i])])
-			verts3.append([x[tmp],y[tmp],0.])	
-
-		if option == 'y':
-			tmp = np.int(nxy/2)
-			verts1.append([x[tmp],y[tmp],0.])
-			for i in range(nxy-tmp):
-				verts1.append([x[tmp+i],y[tmp],mc3_example_3_2_func(x[tmp+i],y[tmp])])
-			verts1.append([x[-1],y[tmp],0.])
-
-			tmp = np.int(nxy/4)
-			verts2.append([x[tmp],y[tmp],0.])
-			for i in range(nxy-tmp):
-				verts2.append([x[tmp+i],y[tmp],mc3_example_3_2_func(x[tmp+i],y[tmp])])
-			verts2.append([x[-1],y[tmp],0.])
-
-			tmp = np.int(nxy/1.2)
-			verts3.append([x[tmp],y[tmp],0.])
-			for i in range(nxy-tmp):
-				verts3.append([x[tmp+i],y[tmp],mc3_example_3_2_func(x[tmp+i],y[tmp])])
-			verts3.append([x[-1],y[tmp],0.])
-		
-	fig = plt.figure(figsize=(16, 8))
-	if option == 'default':
-		ax1 = fig.add_subplot(121, projection='3d')
-		ax1.set_xlabel('x')
-		ax1.set_ylabel('y')
-		ax1.set_zlabel('f(x,y)')
-		#ax1.set_zlim([0,4])
-		ax1.set_title('Surface')
-		ax1.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.plasma, linewidth=0, antialiased=False)
-		ax1.view_init(30, 325)
-		ax2 = fig.add_subplot(122)
-		ax2.set_xlabel('x')
-		ax2.set_ylabel('y')
-		ax2.set_title('Integration region')
-		ax2.plot(intreg_x,intreg_y, 'k--')
-		#ax2.plot([x[0],[-1]],[y[0],y[0]], 'k--o')
-		#ax2.plot([x[-1],x[-1]],[y[0],y[-1]], 'k--o')
-		#ax2.plot([x[-1],x[0]],[y[-1],y[0]], 'k--o')
-		#r = Poly3DCollection([verts], linewidth=1, alpha=0.5)
-		#r.set_facecolor((0.2, 0.2, 0.2, 0.5))
-		#ax1.add_collection3d(r)
-	else:
-		ax1 = fig.add_subplot(111, projection='3d')
-		ax1.set_xlabel('x')
-		ax1.set_ylabel('y')
-		ax1.set_zlabel('f(x,y)')
-		#ax1.set_zlim([0,4])
-		#ax1.plot_wireframe(X, Y, 0*Z, rstride=nxy, cstride=nxy, color='k', linewidth=1.0, antialiased=True)
-		ax1.plot_wireframe(X, Y, Z, rstride=1, cstride=1, color='black', linewidth=0.4)
-		face1 = Poly3DCollection([verts1], linewidth=1, alpha=0.5)
-		face2 = Poly3DCollection([verts2], linewidth=1, alpha=0.5)
-		face3 = Poly3DCollection([verts3], linewidth=1, alpha=0.5)
-		face1.set_facecolor((0, 0, 1, 0.5))
-		face2.set_facecolor((0, 0, 1, 0.5))
-		face3.set_facecolor((0, 0, 1, 0.5))
-		ax1.add_collection3d(face1)
-		ax1.add_collection3d(face2)
-		ax1.add_collection3d(face3)
-		ax1.view_init(30, 315)
-		r = Poly3DCollection([verts], linewidth=1, alpha=0.5)
-		r.set_facecolor((0.2, 0.2, 0.2, 0.5))
-		ax1.add_collection3d(r)
